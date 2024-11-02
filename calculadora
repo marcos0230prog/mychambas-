@@ -1,0 +1,115 @@
+using System;
+using System.Collections.Generic;
+
+class Program
+{
+    static void Main()
+    {
+        List<decimal> numerosIngresados = new List<decimal>();
+        int opcionSeleccionada = 1;
+        int continuar = 0;
+
+        Console.WriteLine("Esta es la mejor calculadora");
+        Console.WriteLine("Por favor, escribe el número de la opción que deseas:");
+        Console.WriteLine("---------------------------------------");
+        Console.WriteLine("1. Sumar, \n2. Restar, \n3. Multiplicar, \n4. Dividir, \n5. Salir");
+
+        try
+        {
+            opcionSeleccionada = Convert.ToInt32(Console.ReadLine());
+
+            do
+            {
+                Console.WriteLine("Por favor, escribe un número:");
+                numerosIngresados.Add(Convert.ToDecimal(Console.ReadLine()));
+                Console.WriteLine("¿Quieres seguir ingresando números? 1. Sí, 2. No");
+                continuar = Convert.ToInt32(Console.ReadLine());
+            } while (continuar == 1);
+
+            decimal resultado = 0;
+
+            switch (opcionSeleccionada)
+            {
+                case 1: // Sumar
+                    resultado = Sumar(numerosIngresados);
+                    break;
+
+                case 2: // Restar
+                    resultado = Restar(numerosIngresados);
+                    break;
+
+                case 3: // Multiplicar
+                    resultado = Multiplicar(numerosIngresados);
+                    break;
+
+                case 4: // Dividir
+                    resultado = Dividir(numerosIngresados);
+                    break;
+
+                default:
+                    Console.WriteLine("Opción no válida.");
+                    return;
+            }
+
+            Console.WriteLine($"El resultado de la operación es: {resultado}");
+        }
+        catch (DivideByZeroException ex)
+        {
+            Console.WriteLine($"No puedes dividir entre cero: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ocurrió un error: {ex.Message}");
+        }
+        finally
+        {
+            Console.WriteLine("Cerrando la aplicación.");
+        }
+    }
+
+    static decimal Sumar(List<decimal> numeros)
+    {
+        decimal suma = 0;
+        foreach (var numero in numeros)
+        {
+            suma += numero;
+        }
+        return suma;
+    }
+
+    static decimal Restar(List<decimal> numeros)
+    {
+        if (numeros.Count == 0) return 0;
+        decimal resultado = numeros[0];
+        for (int i = 1; i < numeros.Count; i++)
+        {
+            resultado -= numeros[i];
+        }
+        return resultado;
+    }
+
+    static decimal Multiplicar(List<decimal> numeros)
+    {
+        decimal producto = 1;
+        foreach (var numero in numeros)
+        {
+            producto *= numero;
+        }
+        return producto;
+    }
+
+    static decimal Dividir(List<decimal> numeros)
+    {
+        if (numeros.Count == 0) return 0;
+        decimal resultado = numeros[0];
+        for (int i = 1; i < numeros.Count; i++)
+        {
+            if (numeros[i] == 0)
+            {
+                throw new DivideByZeroException("No se puede dividir entre cero.");
+            }
+            resultado /= numeros[i];
+        }
+        return resultado;
+    }
+}
