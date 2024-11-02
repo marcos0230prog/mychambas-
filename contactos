@@ -1,0 +1,165 @@
+using System;
+using System.Collections.Generic;
+
+public class Contact
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public string Phone { get; set; }
+    public string Email { get; set; }
+    public string Address { get; set; }
+
+    public Contact(int id, string name, string phone, string email, string address)
+    {
+        Id = id;
+        Name = name;
+        Phone = phone;
+        Email = email;
+        Address = address;
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        List<Contact> contacts = new List<Contact>();
+        bool running = true;
+
+        while (running)
+        {
+            Console.WriteLine("1. Agregar Contacto");
+            Console.WriteLine("2. Ver Contactos");
+            Console.WriteLine("3. Buscar Contactos");
+            Console.WriteLine("4. Modificar Contacto");
+            Console.WriteLine("5. Eliminar Contacto");
+            Console.WriteLine("6. Salir");
+            Console.Write("Elige una opción: ");
+
+            int choice = Convert.ToInt32(Console.ReadLine());
+
+            switch (choice)
+            {
+                case 1:
+                    AddContact(contacts);
+                    break;
+                case 2:
+                    ViewContacts(contacts);
+                    break;
+                case 3:
+                    SearchContact(contacts);
+                    break;
+                case 4:
+                    EditContact(contacts);
+                    break;
+                case 5:
+                    DeleteContact(contacts);
+                    break;
+                case 6:
+                    running = false;
+                    break;
+                default:
+                    Console.WriteLine("Opción no válida");
+                    break;
+            }
+        }
+    }
+
+    static void AddContact(List<Contact> contacts)
+    {
+        Console.WriteLine("Vamos a agregar ese contacto que te trae loco.");
+        int id = contacts.Count + 1;
+
+        Console.Write("Digite el Nombre: ");
+        var name = Console.ReadLine();
+        Console.Write("Digite el Teléfono: ");
+        var phone = Console.ReadLine();
+        Console.Write("Digite el Email: ");
+        var email = Console.ReadLine();
+        Console.Write("Digite la dirección: ");
+        var address = Console.ReadLine();
+
+        contacts.Add(new Contact(id, name, phone, email, address));
+        Console.WriteLine("Contacto agregado con éxito.\n");
+    }
+
+    static void ViewContacts(List<Contact> contacts)
+    {
+        Console.WriteLine("Id           Nombre          Telefono            Email           Dirección");
+        Console.WriteLine("___________________________________________________________________________");
+
+        foreach (var contact in contacts)
+        {
+            Console.WriteLine($"{contact.Id}    {contact.Name}      {contact.Phone}      {contact.Email}     {contact.Address}");
+        }
+    }
+
+    static void EditContact(List<Contact> contacts)
+    {
+        ViewContacts(contacts);
+        Console.WriteLine("Digite un Id de Contacto Para Editar");
+        int idSeleccionado = Convert.ToInt32(Console.ReadLine());
+
+        var contact = contacts.Find(c => c.Id == idSeleccionado);
+        if (contact != null)
+        {
+            Console.Write($"El nombre es: {contact.Name}, Digite el Nuevo Nombre: ");
+            contact.Name = Console.ReadLine();
+            Console.Write($"El Teléfono es: {contact.Phone}, Digite el Nuevo Teléfono: ");
+            contact.Phone = Console.ReadLine();
+            Console.Write($"El Email es: {contact.Email}, Digite el Nuevo Email: ");
+            contact.Email = Console.ReadLine();
+            Console.Write($"La dirección es: {contact.Address}, Digite la nueva dirección: ");
+            contact.Address = Console.ReadLine();
+
+            Console.WriteLine("Contacto modificado con éxito.\n");
+        }
+        else
+        {
+            Console.WriteLine("Contacto no encontrado.\n");
+        }
+    }
+
+    static void DeleteContact(List<Contact> contacts)
+    {
+        ViewContacts(contacts);
+        Console.WriteLine("Digite un Id de Contacto Para Eliminar");
+        int idSeleccionado = Convert.ToInt32(Console.ReadLine());
+
+        var contact = contacts.Find(c => c.Id == idSeleccionado);
+        if (contact != null)
+        {
+            Console.WriteLine("Seguro que desea eliminar? 1. Si, 2. No");
+            int opcion = Convert.ToInt32(Console.ReadLine());
+            if (opcion == 1)
+            {
+                contacts.Remove(contact);
+                Console.WriteLine("Contacto eliminado con éxito.\n");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Contacto no encontrado.\n");
+        }
+    }
+
+    static void SearchContact(List<Contact> contacts)
+    {
+        ViewContacts(contacts);
+        Console.WriteLine("Digite un Id de Contacto Para Mostrar");
+        int idSeleccionado = Convert.ToInt32(Console.ReadLine());
+
+        var contact = contacts.Find(c => c.Id == idSeleccionado);
+        if (contact != null)
+        {
+            Console.WriteLine($"Nombre: {contact.Name}");
+            Console.WriteLine($"Teléfono: {contact.Phone}");
+            Console.WriteLine($"Email: {contact.Email}");
+            Console.WriteLine($"Dirección: {contact.Address}\n");
+        }
+        else
+        {
+            Console.WriteLine("Contacto no encontrado.\n");
+        }
+    }
+}
