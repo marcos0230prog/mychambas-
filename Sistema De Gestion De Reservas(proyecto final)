@@ -1,0 +1,257 @@
+using Microsoft.Data.Sqlite;
+using SistemaDeGestionDeReservas.Modelos;
+using SistemaDeGestionDeReservas.Servicios;
+
+namespace SistemaDeGestionDeReservas.Modelos
+{
+    public class Cliente
+    {
+        public int ClienteId { get; set; }
+        public required string Nombre { get; set; }
+        public required string Email { get; set; }
+        public required string Telefono { get; set; }
+    }
+}
+
+namespace SistemaDeGestionDeReservas.Modelos
+{
+    public class Evento
+    {
+        public int EventoId { get; set; }
+        public required string Nombre { get; set; }
+        public DateTime Fecha { get; set; }
+        public required string Descripcion { get; set; }
+        public int UbicacionId { get; set; }
+    }
+}
+
+namespace SistemaDeGestionDeReservas.Modelos
+{
+    public class Ubicacion
+    {
+        public int UbicacionId { get; set; }
+        public required string Nombre { get; set; }
+        public required string Direccion { get; set; }
+    }
+}
+
+namespace SistemaDeGestionDeReservas.Modelos
+{
+    public class Reservacion
+    {
+        public int ReservacionId { get; set; }
+        public int ClienteId { get; set; }
+        public int EventoId { get; set; }
+        public DateTime FechaReservacion { get; set; }
+    }
+}
+
+namespace SistemaDeGestionDeReservas.Servicios
+{
+    public class GestionReservas
+    {
+        private List<Cliente> _clientes = new List<Cliente>();
+        private List<Evento> _eventos = new List<Evento>();
+        private List<Ubicacion> _ubicaciones = new List<Ubicacion>();
+        private List<Reservacion> _reservaciones = new List<Reservacion>();
+
+        public void AgregarCliente(Cliente cliente) => _clientes.Add(cliente);
+        public Cliente ObtenerCliente(int id) => _clientes.FirstOrDefault(c => c.ClienteId == id);
+        public void ActualizarCliente(Cliente cliente)
+        {
+            var existente = ObtenerCliente(cliente.ClienteId);
+            if (existente != null)
+            {
+                existente.Nombre = cliente.Nombre;
+                existente.Email = cliente.Email;
+                existente.Telefono = cliente.Telefono;
+            }
+        }
+        public void EliminarCliente(int id) => _clientes.RemoveAll(c => c.ClienteId == id);
+
+        public void AgregarEvento(Evento evento) => _eventos.Add(evento);
+        public Evento ObtenerEvento(int id) => _eventos.FirstOrDefault(e => e.EventoId == id);
+        public void ActualizarEvento(Evento evento)
+        {
+            var existente = ObtenerEvento(evento.EventoId);
+            if (existente != null)
+            {
+                existente.Nombre = evento.Nombre;
+                existente.Fecha = evento.Fecha;
+                existente.Descripcion = evento.Descripcion;
+                existente.UbicacionId = evento.UbicacionId;
+            }
+        }
+        public void EliminarEvento(int id) => _eventos.RemoveAll(e => e.EventoId == id);
+
+        public void AgregarUbicacion(Ubicacion ubicacion) => _ubicaciones.Add(ubicacion);
+        public Ubicacion ObtenerUbicacion(int id) => _ubicaciones.FirstOrDefault(u => u.UbicacionId == id);
+        public void ActualizarUbicacion(Ubicacion ubicacion)
+        {
+            var existente = ObtenerUbicacion(ubicacion.UbicacionId);
+            if (existente != null)
+            {
+                existente.Nombre = ubicacion.Nombre;
+                existente.Direccion = ubicacion.Direccion;
+            }
+        }
+        public void EliminarUbicacion(int id) => _ubicaciones.RemoveAll(u => u.UbicacionId == id);
+
+        public void AgregarReservacion(Reservacion reservacion) => _reservaciones.Add(reservacion);
+        public Reservacion ObtenerReservacion(int id) => _reservaciones.FirstOrDefault(r => r.ReservacionId == id);
+        public void EliminarReservacion(int id) => _reservaciones.RemoveAll(r => r.ReservacionId == id);
+    }
+}
+
+namespace SistemaDeGestionDeReservas
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var gestor = new GestionReservas();
+
+            
+            var cliente = new Cliente { ClienteId = 1, Nombre = "Juan Pérez", Email = "juan@email.com", Telefono = "123456789" };
+            gestor.AgregarCliente(cliente);
+
+           
+            var ubicacion = new Ubicacion { UbicacionId = 1, Nombre = "Sala Principal", Direccion = "Av. Principal 123" };
+            gestor.AgregarUbicacion(ubicacion);
+
+           
+            var evento = new Evento { EventoId = 1, Nombre = "Concierto de Rock", Fecha = DateTime.Now.AddMonths(1), Descripcion = "Un concierto inolvidable", UbicacionId = 1 };
+            gestor.AgregarEvento(evento);
+
+            
+            var reservacion = new Reservacion { ReservacionId = 1, ClienteId = 1, EventoId = 1, FechaReservacion = DateTime.Now };
+            gestor.AgregarReservacion(reservacion);
+
+            
+            var miReservacion = gestor.ObtenerReservacion(1);
+            if (miReservacion != null)
+            {
+                Console.WriteLine($"Reservación ID: {miReservacion.ReservacionId}, Cliente: {miReservacion.ClienteId}, Evento: {miReservacion.EventoId}, Fecha: {miReservacion.FechaReservacion}");
+            }
+
+            Console.ReadLine(); 
+        }
+    }
+}
+
+namespace SistemaDeGestionDeReservas
+{
+    public class BaseDeDatos
+    {
+        private const string ConnectionString = "Data Source=reservas.db";
+
+        public static void Inicializar()
+        {
+            using (var connection = new SqliteConnection(ConnectionString))
+            {
+                connection.Open();
+
+                var command = connection.CreateCommand();
+                command.CommandText = @"
+                    CREATE TABLE IF NOT EXISTS Clientes (
+                        ClienteId INTEGER PRIMARY KEY AUTOINCREMENT,
+                        Nombre TEXT NOT NULL,
+                        Email TEXT NOT NULL,
+                        Telefono TEXT
+                    );
+
+                    CREATE TABLE IF NOT EXISTS Ubicaciones (
+                        UbicacionId INTEGER PRIMARY KEY AUTOINCREMENT,
+                        Nombre TEXT NOT NULL,
+                        Direccion TEXT NOT NULL
+                    );
+
+                    CREATE TABLE IF NOT EXISTS Eventos (
+                        EventoId INTEGER PRIMARY KEY AUTOINCREMENT,
+                        Nombre TEXT NOT NULL,
+                        Fecha TEXT NOT NULL,
+                        Descripcion TEXT,
+                        UbicacionId INTEGER,
+                        FOREIGN KEY(UbicacionId) REFERENCES Ubicaciones(UbicacionId)
+                    );
+
+                    CREATE TABLE IF NOT EXISTS Reservaciones (
+                        ReservacionId INTEGER PRIMARY KEY AUTOINCREMENT,
+                        ClienteId INTEGER,
+                        EventoId INTEGER,
+                        FechaReservacion TEXT NOT NULL,
+                        FOREIGN KEY(ClienteId) REFERENCES Clientes(ClienteId),
+                        FOREIGN KEY(EventoId) REFERENCES Eventos(EventoId)
+                    );
+                ";
+                command.ExecuteNonQuery();
+            }
+        }
+    }
+}
+
+namespace SistemaDeGestionDeReservas.Servicios
+{
+    public class GestionBaseDeDatos
+    {
+        private const string ConnectionString = "Data Source=reservas.db";
+
+        public void AgregarCliente(string nombre, string email, string telefono)
+        {
+            using (var connection = new SqliteConnection(ConnectionString))
+            {
+                connection.Open();
+
+                var command = connection.CreateCommand();
+                command.CommandText = @"
+                    INSERT INTO Clientes (Nombre, Email, Telefono)
+                    VALUES ($nombre, $email, $telefono);
+                ";
+                command.Parameters.AddWithValue("$nombre", nombre);
+                command.Parameters.AddWithValue("$email", email);
+                command.Parameters.AddWithValue("$telefono", telefono);
+
+                command.ExecuteNonQuery();
+            }
+        }
+
+        public void MostrarClientes()
+        {
+            using (var connection = new SqliteConnection(ConnectionString))
+            {
+                connection.Open();
+
+                var command = connection.CreateCommand();
+                command.CommandText = "SELECT ClienteId, Nombre, Email, Telefono FROM Clientes";
+
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        Console.WriteLine($"ID: {reader.GetInt32(0)}, Nombre: {reader.GetString(1)}, Email: {reader.GetString(2)}, Teléfono: {reader.GetString(3)}");
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+namespace SistemaDeGestionDeReservas
+{
+    class SistemaDeGestionDeReservas
+    {
+        static void Main(string[] args)
+        {
+            BaseDeDatos.Inicializar();
+            var gestion = new GestionBaseDeDatos();
+
+            gestion.AgregarCliente("Juan Pérez", "juan@example.com", "123456789");
+
+            Console.WriteLine("Clientes registrados:");
+            gestion.MostrarClientes();
+
+            Console.ReadLine(); 
+        }
+    }
+}
